@@ -134,6 +134,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
       intent.putExtra(FlicaAuthenticator.KEY_CUSTOM_TOKEN_EXPIRY,
           new DateTime().plus(FlicaAuthenticator.SESSION_TIMEOUT).getMillis());
       setAccountAuthenticatorResult(intent.getExtras());
+      Log.i(TAG, "Setting result to RESULT_OK (" + RESULT_OK + ")");
       setResult(RESULT_OK, intent);
       finish();
     } else {

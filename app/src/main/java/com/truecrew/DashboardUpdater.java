@@ -44,8 +44,8 @@ public class DashboardUpdater {
   private final FlicaService flicaService;
   private final FlightStatusService flightStatusService;
   private final DashboardService dashboardService;
-  private final Clock clock;
   private final DashboardAdapter dashboardAdapter;
+  private final Clock clock;
 
   DashboardUpdater(DashboardAdapter dashboardAdapter) {
     this.flicaConnection = new FlicaConnection(null, null);
@@ -56,19 +56,16 @@ public class DashboardUpdater {
     this.dashboardAdapter = dashboardAdapter;
   }
 
-  private void updateInternal(String authToken) throws IOException, ParseException {
-    flicaConnection.setSession(authToken);
-    Dashboard dashboard = dashboardService.getDashboard(clock);
-    dashboardAdapter.updateDashboard(dashboard);
-  }
-
   public class UpdateFromBundleTask extends android.os.AsyncTask<AccountManagerFuture<Bundle>, Void, Void> {
     protected Void doInBackground(AccountManagerFuture<Bundle>... accounts) {
+      Log.i(TAG, "UpdateFromBundleTask");
       Preconditions.checkState(accounts.length == 1);
       try {
         Bundle bundle = accounts[0].getResult();  // blocks
         String authToken = (String) bundle.get(AccountManager.KEY_AUTHTOKEN);
-        updateInternal(authToken);
+        flicaConnection.setSession(authToken);
+        Dashboard dashboard = dashboardService.getDashboard(clock);
+        dashboardAdapter.updateDashboard(dashboard);
       } catch (Exception e) {
         Log.i(TAG, "Error updating", e);
       }
@@ -78,9 +75,12 @@ public class DashboardUpdater {
 
   public class UpdateFromTokenTask extends android.os.AsyncTask<String, Void, Void> {
     protected Void doInBackground(String... authTokens) {
+      Log.i(TAG, "UpdateFromTokenTask");
       Preconditions.checkState(authTokens.length == 1);
       try {
-        updateInternal(authTokens[0]);
+        flicaConnection.setSession(authTokens[0]);
+        Dashboard dashboard = dashboardService.getDashboard(clock);
+        dashboardAdapter.updateDashboard(dashboard);
       } catch (Exception e) {
         Log.i(TAG, "Error updating", e);
       }

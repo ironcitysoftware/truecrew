@@ -31,6 +31,7 @@ import android.widget.BaseAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import crewtools.dashboard.Dashboard;
+import crewtools.dashboard.FlightInfo;
 
 public class DashboardAdapter extends BaseAdapter {
   private final Activity activity;
@@ -63,17 +65,21 @@ public class DashboardAdapter extends BaseAdapter {
 
   @Override
   public int getCount() {
-    return dashboard == null ? 0 : 1;
+    if (dashboard == null) {
+      return 0;
+    }
+    return dashboard.getFlights().size();
   }
 
   @Override
-  public Dashboard getItem(int position) {
-    return dashboard;
+  public FlightInfo getItem(int position) {
+    Preconditions.checkState(dashboard != null);
+    return dashboard.getFlights().get(position);
   }
 
   @Override
   public long getItemId(int position) {
-    return dashboard.hashCode();
+    return dashboard.getFlights().get(position).hashCode();
   }
 
   @Override
@@ -81,15 +87,32 @@ public class DashboardAdapter extends BaseAdapter {
     if (view == null) {
       view = inflater.inflate(R.layout.dashboard, container, false);
     }
-    set(view, R.id.retrieved_time, dashboard.getPrettyRetrievedTime());
-    set(view, R.id.origin_airport, dashboard.getCurrentFlight().getOriginAirport());
-    set(view, R.id.origin_address, dashboard.getCurrentFlight().getOriginGate());
-    set(view, R.id.destination_airport, dashboard.getCurrentFlight().getDestinationAirport());
-    set(view, R.id.destination_address, dashboard.getCurrentFlight().getDestinationGate());
+    DashboardView dv = new DashboardView(view);
+    FlightInfo info = dashboard.getFlights().get(position);
+    dv.set(R.id.retrieved_time, dashboard.getPrettyRetrievedTime());
+    dv.set(R.id.flight_number, info.getFlightNumber());
+    dv.set(R.id.origin_airport, info.getOriginAirport());
+    dv.set(R.id.origin_address, info.getOriginGate());
+    dv.set(R.id.destination_airport, info.getDestinationAirport());
+    dv.set(R.id.destination_address, info.getDestinationGate());
+    dv.set(R.id.arrow, "->");
+    dv.set(R.id.equipment, info.getAircraftType());
     return view;
   }
 
-  private void set(View view, int id, String text) {
-    ((TextView) view.findViewById(id)).setText(text);
+  private class DashboardView {
+    private final View view;
+
+    public DashboardView(View view) {
+      this.view = view;
+    }
+
+    public void set(int id, String text) {
+      ((TextView) view.findViewById(id)).setText(text);
+    }
+
+    public void clear(int id) {
+      ((TextView) view.findViewById(id)).setText("");
+    }
   }
 }

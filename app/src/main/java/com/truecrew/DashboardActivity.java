@@ -26,6 +26,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -59,10 +60,9 @@ public class DashboardActivity extends AppCompatActivity implements SwipeRefresh
 
   private final String TAG = this.getClass().getName();
 
-  public DashboardActivity() {
-    super();
-  }
-
+  /**
+   * Note: screen rotation will restart the activity.
+   */
   @Override
   protected void onStart() {
     super.onStart();
@@ -86,6 +86,7 @@ public class DashboardActivity extends AppCompatActivity implements SwipeRefresh
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    // TODO: getting resultCode = 0 (CANCELED) even though the activity sets OK.
     Log.i(TAG, "onActivityResult " + requestCode + " " + resultCode);
     if (requestCode == ACTIVITY_RESULT_FOR_ADD_ACCOUNT) {
       if (resultCode == RESULT_OK) {
@@ -132,7 +133,9 @@ public class DashboardActivity extends AppCompatActivity implements SwipeRefresh
   }
 
   private void updateDashboard() {
+    Log.i(TAG, "updateDashboard");
     if (isNetworkAvailable()) {
+      Log.i(TAG, "network is available");
       Account availableAccounts[] = accountManager.getAccountsByType(Constants.ACCOUNT_TYPE);
       if (availableAccounts.length == 0) {
         Log.i(TAG, "No Flica account; add one.");
@@ -157,14 +160,13 @@ public class DashboardActivity extends AppCompatActivity implements SwipeRefresh
 
     Log.i(TAG, "Notify data set changed");
     dashboardAdapter.notifyDataSetChanged();
-   }
-
+  }
 
   private boolean isNetworkAvailable() {
     android.net.ConnectivityManager connectivityManager
           = (android.net.ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     android.net.NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
     return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-}
+  }
 }
 
