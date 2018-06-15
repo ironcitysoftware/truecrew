@@ -19,6 +19,6 @@
  */
 -->
 <resources>
-    <string name="appplication_label">TrueCrew</string>
+    <string name="application_label">TrueCrew</string>
     <string name="action_settings">Settings</string>
 </resources>
