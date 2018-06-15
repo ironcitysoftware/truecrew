@@ -1,0 +1,14 @@
+*.ap_
+*.apk
+*.class
+*.dex
+*.iml
+*.log
+.gradle
+.idea
+build
+gen
+gradlew
+gradle
+proguard/
+/local.properties
