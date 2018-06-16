@@ -42,6 +42,7 @@ import java.util.Map;
 
 import crewtools.dashboard.Dashboard;
 import crewtools.dashboard.FlightInfo;
+import crewtools.dashboard.TimeInfo;
 
 public class DashboardAdapter extends BaseAdapter {
   private final Activity activity;
@@ -91,12 +92,44 @@ public class DashboardAdapter extends BaseAdapter {
     FlightInfo info = dashboard.getFlights().get(position);
     dv.set(R.id.retrieved_time, dashboard.getPrettyRetrievedTime());
     dv.set(R.id.flight_number, info.getFlightNumber());
+    if (info.isCanceled()) {
+      dv.set(R.id.flight_status, "CANCELLED");
+    } else {
+      dv.set(R.id.flight_status, "");
+    }
     dv.set(R.id.origin_airport, info.getOriginAirport());
     dv.set(R.id.origin_address, info.getOriginGate());
     dv.set(R.id.destination_airport, info.getDestinationAirport());
     dv.set(R.id.destination_address, info.getDestinationGate());
     dv.set(R.id.arrow, "->");
     dv.set(R.id.equipment, info.getAircraftType());
+    TimeInfo timeInfo = info.getTimeInfo();
+    if (position == 0 && dashboard.getCurrentFlight() != null) {
+      // current flight
+      if (timeInfo.hasDeparture()) {
+        dv.set(R.id.departure_time, String.format("Depart %s %s",
+            timeInfo.getDepartureOffset(), timeInfo.getDepartureZulu()));
+      }
+      if (timeInfo.hasArrival()) {
+        dv.set(R.id.arrival_time, String.format("Arrive %s %s",
+            timeInfo.getArrivalOffset(), timeInfo.getArrivalZulu()));
+      }
+    } else {
+      // next flight
+      dv.set(R.id.company_show, String.format("AA show %s %s",
+          timeInfo.getCompanyShowOffset(), timeInfo.getCompanyShowZulu()));
+      if (timeInfo.hasEstimatedShow()) {
+        dv.set(R.id.estimated_show, String.format("Est. show %s %s",
+            timeInfo.getEstimatedShowOffset(), timeInfo.getEstimatedShowZulu()));
+      }
+      if (timeInfo.hasDeparture()) {
+        dv.set(R.id.departure_time, String.format("Departed %s %s",
+            timeInfo.getDepartureOffset(), timeInfo.getDepartureZulu()));
+      } else {
+        dv.set(R.id.departure_time, String.format("Departs %s %s",
+            timeInfo.getScheduledDepartureOffset(), timeInfo.getScheduledDepartureZulu()));
+      }
+    }
     return view;
   }
 
